@@ -1,5 +1,3 @@
-vagrant up
-
-vagrant ssh
-
-./start.sh
+vagrant up  
+vagrant ssh  
+./start.sh  
