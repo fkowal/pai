@@ -11,3 +11,6 @@ vagrant ssh  # lub laczymy sie puttym
 ./start.sh  
 
 http://192.168.33.12/  
+
+
+Przykladowa zmiana  
