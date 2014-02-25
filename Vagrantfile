@@ -9,7 +9,7 @@ sudo apt-get update -q
 sudo apt-get install -q -y python-software-properties
 sudo add-apt-repository -y ppa:ondrej/php5-oldstable
 sudo apt-get update -q
-sudo apt-get install -q -y php5-cli php5-mysql php5-sqlite sqlite
+sudo apt-get install -q -y php5-cli php5-mysql php5-sqlite sqlite3
 echo -e "#!/bin/bash\nsudo php -S 0.0.0.0:80 -t app/\n" > /home/vagrant/start.sh && chmod +x /home/vagrant/start.sh
 [ ! -L /home/vagrant/app ] && ln -s /vagrant/app /home/vagrant
 SCRIPT
