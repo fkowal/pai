@@ -2,11 +2,11 @@
   include "dane_na_zmienne.php";
   include "naglowek.htm";
 ?>
-  <header>
-    <h2 style="text-align: center;">Podsumowanie kwestionariusza</h2>
-  </header>
+  <h2 style="text-align: center;">Podsumowanie kwestionariusza</h2>
+
   <hr>
-  <form action="statystyki.php" method="post">
+  
+  <form action="zapisz.php" method="post">
     <p>Imię: <strong><?php echo $imie; ?></strong></p>
     <p>Nazwisko: <strong><?php echo $nazwisko; ?></strong></p>
     <p>Nr indeksu: <strong><?php echo $album; ?></strong></p>

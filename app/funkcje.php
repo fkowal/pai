@@ -1,99 +1,66 @@
 <?php
 
+  $polaczenie = NULL;
+
   /**
    * Dokonuje próby połączenia z serwerem bazy danych
    */
   function Polacz_z_Baza()
   {
-    $wynik = mysql_connect("localhost","pai" ,"paipass"); 
-    if (!$wynik) {
-      Pokaz_Blad();
-    }
+    global $polaczenie;
+
+    $polaczenie = new PDO("sqlite:kwestionariusze.db");
   }
 
   /**
-   * Wybiera właściwą bazę danych
+   * Tworzy tabele "osoby" jeśli jej nie ma w bazie danych
    */
-  function Wybierz_Baze()
+  function Stworz_Tabele_Osoby()
   {
-    $wynik = mysql_select_db("pai");
-    if (!$wynik) {
-      Pokaz_Blad();
-    }
-  }
+    global $polaczenie;
 
-  /**
-   * Tworzy tabele Osoby jeśli jej nie ma w bazie danych
-   */
-  function Stworz_Tabele_Osoby_Jesli_Nie_Istnieje()
-  {
-    $zapytanie = "CREATE TABLE IF NOT EXISTS osoby(id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, czas datetime, IP char(15), imie char(20), nazwisko char(50))";
-    $wynik = mysql_query($zapytanie);
-
-    if (!$wynik) {
-      Pokaz_Blad();
-    }
+    $zapytanie = "CREATE TABLE IF NOT EXISTS osoby(id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, czas datetime, IP char(15), imie char(20), nazwisko char(50))";
+    $polaczenie->exec($zapytanie);
   }
 
   /**
    * Zapisuje wartości z formularza do tabeli w bazie danych
    */
-  function Zapisz_Dane_Z_Ankiety($imie, $nazwisko)
+  function Zapisz_Dane($imie, $nazwisko)
   {
-    $zapytanie = "INSERT INTO osoby (imie, nazwisko, czas, IP) VALUES ('$imie', '$nazwisko', NOW(), '" . $_SERVER['SERVER_ADDR'] . "')";
-    $wynik = mysql_query($zapytanie);
+    global $polaczenie;  
 
-    if (!$wynik) {
-      Pokaz_Blad();
-    }
+    $zapytanie = "INSERT INTO osoby (imie, nazwisko, czas, IP) VALUES ('$imie', '$nazwisko', datetime(), '" . $_SERVER['HTTP_HOST'] . "')";
+    $polaczenie->exec($zapytanie);
   }
 
   /**
-   * Wyświetla błąd związany z operacją na bazie danych i przerywa wykonywanie skryptu
-   */
-  function Pokaz_Blad()
-  {
-    echo "<p>\n";
-    echo "Numer błędu: <b>".mysql_errno()."</b><br>";
-    echo "Opis błędu: <b>".mysql_error()."</b>";
-    echo "</p>\n";
-    die();
-  }
-
-  /**
-   * Wykonuje zapytanie na tabeli w bazie danych i go zwraca jeśli jest poprawny
+   * Wykonuje zapytanie na tabeli w bazie danych i pokazuje wynik zapytania w postaci tabeli HTML
    */
   function Wykonaj_Zapytanie($zapytanie) 
   {
-    $wynik = mysql_query($zapytanie);
-    
-    if (!$wynik) {
-      Pokaz_Blad();
-    }
-    
-    return $wynik;
-  }
+    global $polaczenie;
 
-  /**
-   * Pokazuje wynik zapytania w postaci tabeli HTML
-   */
-  function Pokaz_Wynik($wynik)
-  {  
-    $kolumny = mysql_num_fields($wynik);
+    $wynik = $polaczenie->query($zapytanie);
+    $wynik->setFetchMode(PDO::FETCH_ASSOC);
+
     echo "<table border='1'>\n";
+    
     echo "<tr>\n";
-    for ($i = 0; $i < $kolumny; $i++) {
-      echo "<th>".mysql_field_name($wynik, $i)."</th>\n";
+    for ($i = 0; $i < $wynik->columnCount(); $i++) {
+      $kolumna = $wynik->getColumnMeta($i);
+      echo "<th>" . $kolumna['name'] . "</th>\n";
     }
     echo "</tr>\n";
-    
-    while ($wiersz = mysql_fetch_array($wynik)) {
-      echo "<tr>";
-      for ($i = 0; $i < $kolumny; $i++) {
-        echo "<td>".$wiersz[$i]."</td>\n";
+
+    foreach ($wynik as $wiersz) {
+      echo "<tr>\n";
+      foreach ($wiersz as $komorka) {
+        echo "<td>$komorka</td>\n";
       }
       echo "</tr>\n";
-    }	
+    }
+    
     echo "</table>\n";
   }
 
